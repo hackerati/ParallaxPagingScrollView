@@ -13,8 +13,10 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        var parallaxScrollView = ParallaxPagingScrollView(frame: view.frame)
+        var parallaxScrollView = ParallaxPagingScrollView(frame: view.frame, numberOfPages: 5)
         parallaxScrollView.backgroundColor = UIColor.blueColor()
+        parallaxScrollView.pagingEnabled = true
+        view.addSubview(parallaxScrollView)
     }
 }
 

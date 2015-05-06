@@ -15,24 +15,32 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     private let numberOfPages: Int
     private var pageOrigins = Array<CGPoint>()
-    
-    private(set) var currentPage: Int = 0
+    private var currentPage: Int = 0
     
     private var pagingIndicator: UIPageControl!
-    
-    override var pagingEnabled: Bool {
+    var pagingControlsEnabled: Bool {
         didSet {
-            self.pagingIndicator.hidden = !pagingEnabled
+            if self.pagingEnabled {
+                self.pagingIndicator.hidden = !pagingEnabled
+            }
+        }
+    }
+    
+    var pagingControlsTintColor: UIColor! {
+        didSet {
+            self.pagingIndicator.tintColor = pagingControlsTintColor
         }
     }
     
     init(frame: CGRect, numberOfPages: Int) {
         self.numberOfPages = numberOfPages
+        pagingControlsEnabled = false
         
         super.init(frame: frame)
         self.delegate = self
-        
         self.contentSize = CGSize(width: frame.size.width * CGFloat(numberOfPages), height: frame.size.height)
+        self.showsHorizontalScrollIndicator = false
+        self.showsVerticalScrollIndicator = false
         
         self.setupPageControls()
         
@@ -50,13 +58,15 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private func setupPageControls()
     {
         pagingIndicator = UIPageControl(frame: CGRect(x: 0.0, y: frame.size.height - pagingControlHeight, width: frame.size.width, height: pagingControlHeight))
-        pagingIndicator.tintColor = UIColor.whiteColor()
+        pagingControlsTintColor = UIColor.whiteColor()
         pagingIndicator.numberOfPages = numberOfPages
         pagingIndicator.currentPage = currentPage
         pagingIndicator.hidesForSinglePage = true
         pagingIndicator.hidden = !self.pagingEnabled
         self.addSubview(pagingIndicator)
     }
+    
+    
     
     // MARK: UIScrollView Delegate
     

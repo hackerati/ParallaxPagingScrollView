@@ -10,12 +10,22 @@ import UIKit
 
 struct ParallaxScrollViewSubviewModel
 {
-    private(set) var pageNumber: Int
-    private(set) var view: UIView
+    private(set) weak var view: UIView!
+    private(set) var type: ParallaxViewType
+    private(set) var pageNumber: Int?
+    private(set) var pageRange: (Int, Int)?
     
-    init(view: UIView, pageNumber: Int)
+    init(view: UIView, type: ParallaxViewType, pageNumber: Int)
     {
-        self.pageNumber = pageNumber
         self.view = view
+        self.type = type
+        self.pageNumber = pageNumber
+    }
+    
+    init(view: UIView, type: ParallaxViewType, pageRange: (Int, Int))
+    {
+        self.view = view
+        self.type = type
+        self.pageRange = pageRange
     }
 }

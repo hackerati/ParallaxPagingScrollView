@@ -26,6 +26,14 @@ class ViewController: UIViewController {
         var anotherView = UIView(frame: CGRect(x: 0.0, y: 120.0, width: self.view.frame.size.width, height: 30.0))
         anotherView.backgroundColor = UIColor.redColor()
         parallaxScrollView.addSubview(anotherView, type: .AlphaEffect, page: 1)
+        
+        var fixedView = UIView(frame: CGRect(x: 0.0, y: 0.0, width: 150.0, height: 500.0))
+        fixedView.backgroundColor = UIColor.yellowColor()
+        parallaxScrollView.addFixedSubview(fixedView, pageSpan: (3, 4))
+        
+        var coolView = UIView(frame: CGRect(x: 50.0, y: 40.0, width: 70.0, height: 200.0))
+        coolView.backgroundColor = UIColor.purpleColor()
+        parallaxScrollView.addSubview(coolView, type: .NoEffect, page: 3)
     }
 }
 

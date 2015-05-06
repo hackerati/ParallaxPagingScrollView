@@ -12,15 +12,23 @@ import UIKit
 enum ParallaxView
 {
     case NoEffect
+    case AlphaEffect
 }
 
 class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
+    
+    enum ScrollDirection: String {
+        case Left = "Left", Right = "Right"
+    }
     
     private let pagingControlHeight: CGFloat = 25.0
     
     private let numberOfPages: Int
     private var pageOrigins = Array<CGPoint>()
     private var currentPage: Int = 0
+    private var currentOrigin = CGPoint(x: 0.0, y: 0.0)
+    private var childrenViews = Dictionary<ParallaxView, Array<ParallaxScrollViewSubviewModel>>()
+    private var scrollDirection = ScrollDirection.Left
     
     private var pagingIndicator: UIPageControl!
     var pagingControlsEnabled: Bool {
@@ -73,6 +81,52 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.addSubview(pagingIndicator)
     }
     
+    private func trackView(subviewModel: ParallaxScrollViewSubviewModel, type: ParallaxView)
+    {
+        if var viewArray = childrenViews[type] {
+            viewArray.append(subviewModel)
+            childrenViews[type] = viewArray
+        }
+        else {
+            var newArray = [subviewModel]
+            childrenViews[type] = newArray
+        }
+    }
+    
+    private func animateAlphaViews(contentOffset: CGPoint)
+    {
+        if let alphaViews = childrenViews[.AlphaEffect] {
+            
+            for viewModel in alphaViews {
+            
+                if self.canApplyEffectToView(viewModel) {
+                    let pageWidth = self.frame.size.width
+                    let newAlpha = ((pageWidth * CGFloat(viewModel.pageNumber + 1)) - contentOffset.x) / pageWidth
+
+                    viewModel.view.alpha = newAlpha
+                }
+            }
+        }
+    }
+    
+    private func canApplyEffectToView(viewModel: ParallaxScrollViewSubviewModel) -> Bool
+    {
+        if viewModel.pageNumber == currentPage {
+            if scrollDirection == .Left { // if going backwards
+                return false
+            }
+            else {
+                return true
+            }
+        }
+        else if scrollDirection == .Left && viewModel.pageNumber == currentPage - 1 {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
     // MARK: Public
     
     func addSubview(view: UIView, type: ParallaxView, page: Int)
@@ -82,16 +136,11 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         
         let pageOrigin = pageOrigins[page - 1]
         let newOriginX = view.frame.origin.x + pageOrigin.x
-        let newOriginY = view.frame.origin.y + pageOrigin.y
-        
-        view.frame = CGRect(origin: CGPoint(x: newOriginX, y: newOriginY), size: view.frame.size)
-        switch type {
-            case .NoEffect:
-                break
-            default:
-                break
-        }
+        view.frame = CGRect(origin: CGPoint(x: newOriginX, y: view.frame.origin.y), size: view.frame.size)        
         self.addSubview(view)
+        
+        let subviewModel = ParallaxScrollViewSubviewModel(view: view, pageNumber: page - 1)
+        self.trackView(subviewModel, type: type)
     }
     
     // MARK: UIScrollView Delegate
@@ -103,6 +152,16 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
             fixedFrame.origin.x = scrollView.contentOffset.x
             pagingIndicator.frame = fixedFrame
         }
+        
+        
+        if currentOrigin.x < scrollView.contentOffset.x {
+            scrollDirection = .Right
+        }
+        else {
+            scrollDirection = .Left
+        }
+        
+        self.animateAlphaViews(scrollView.contentOffset)
     }
     
     func scrollViewDidEndDecelerating(scrollView: UIScrollView)
@@ -110,12 +169,13 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         var page = 1
         for origin in pageOrigins {
             if scrollView.contentOffset.x == origin.x {
-                currentPage = page
+                currentPage = page - 1
                 break
             }
             page += 1
         }
-        pagingIndicator.currentPage = currentPage - 1
+        pagingIndicator.currentPage = currentPage
+        currentOrigin = pageOrigins[currentPage]
         pagingIndicator.updateCurrentPageDisplay()
     }
 }

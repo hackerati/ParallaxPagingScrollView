@@ -14,6 +14,7 @@
 		01553BA11AF92662005CF60D /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 01553B9C1AF92662005CF60D /* Info.plist */; };
 		01553BA21AF92662005CF60D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01553B9D1AF92662005CF60D /* ViewController.swift */; };
 		01553BAC1AF92806005CF60D /* ParallaxPagingScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01553BAB1AF92806005CF60D /* ParallaxPagingScrollView.swift */; };
+		01553BB01AFA759D005CF60D /* ParallaxScrollViewSubviewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01553BAF1AFA759D005CF60D /* ParallaxScrollViewSubviewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,6 +38,7 @@
 		01553B9C1AF92662005CF60D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		01553B9D1AF92662005CF60D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		01553BAB1AF92806005CF60D /* ParallaxPagingScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParallaxPagingScrollView.swift; sourceTree = "<group>"; };
+		01553BAF1AFA759D005CF60D /* ParallaxScrollViewSubviewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParallaxScrollViewSubviewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +143,7 @@
 			isa = PBXGroup;
 			children = (
 				01553BAB1AF92806005CF60D /* ParallaxPagingScrollView.swift */,
+				01553BAF1AFA759D005CF60D /* ParallaxScrollViewSubviewModel.swift */,
 			);
 			name = Classes;
 			path = ../Classes;
@@ -248,6 +251,7 @@
 			files = (
 				01553B9E1AF92662005CF60D /* AppDelegate.swift in Sources */,
 				01553BA21AF92662005CF60D /* ViewController.swift in Sources */,
+				01553BB01AFA759D005CF60D /* ParallaxScrollViewSubviewModel.swift in Sources */,
 				01553BAC1AF92806005CF60D /* ParallaxPagingScrollView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

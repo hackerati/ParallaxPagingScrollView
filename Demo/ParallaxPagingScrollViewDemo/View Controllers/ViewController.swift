@@ -18,6 +18,10 @@ class ViewController: UIViewController {
         parallaxScrollView.pagingEnabled = true
         parallaxScrollView.pagingControlsEnabled = true
         view.addSubview(parallaxScrollView)
+        
+        var newView = UIView(frame: CGRect(x: 10.0, y: 50.0, width: 100.0, height: 30.0))
+        newView.backgroundColor = UIColor.greenColor()
+        parallaxScrollView.addSubview(newView, type: .NoEffect, page: 2)
     }
 }
 

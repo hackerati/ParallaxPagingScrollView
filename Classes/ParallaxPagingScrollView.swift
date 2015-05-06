@@ -9,6 +9,11 @@
 import Foundation
 import UIKit
 
+enum ParallaxView
+{
+    case NoEffect
+}
+
 class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     private let pagingControlHeight: CGFloat = 25.0
@@ -55,6 +60,8 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: Private
+    
     private func setupPageControls()
     {
         pagingIndicator = UIPageControl(frame: CGRect(x: 0.0, y: frame.size.height - pagingControlHeight, width: frame.size.width, height: pagingControlHeight))
@@ -66,11 +73,31 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.addSubview(pagingIndicator)
     }
     
+    // MARK: Public
     
+    func addSubview(view: UIView, type: ParallaxView, page: Int)
+    {
+        assert(page > 0, "Page number can not be 0 or negative")
+        assert(page <= pageOrigins.count, "Page number exceeds the amount of pages in the scroll view")
+        
+        let pageOrigin = pageOrigins[page - 1]
+        let newOriginX = view.frame.origin.x + pageOrigin.x
+        let newOriginY = view.frame.origin.y + pageOrigin.y
+        
+        view.frame = CGRect(origin: CGPoint(x: newOriginX, y: newOriginY), size: view.frame.size)
+        switch type {
+            case .NoEffect:
+                break
+            default:
+                break
+        }
+        self.addSubview(view)
+    }
     
     // MARK: UIScrollView Delegate
     
-    func scrollViewDidScroll(scrollView: UIScrollView) {
+    func scrollViewDidScroll(scrollView: UIScrollView)
+    {
         if pagingEnabled {
             var fixedFrame = pagingIndicator.frame
             fixedFrame.origin.x = scrollView.contentOffset.x
@@ -78,7 +105,8 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         }
     }
     
-    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
+    func scrollViewDidEndDecelerating(scrollView: UIScrollView)
+    {
         var page = 1
         for origin in pageOrigins {
             if scrollView.contentOffset.x == origin.x {

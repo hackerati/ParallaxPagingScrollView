@@ -34,6 +34,10 @@ class ViewController: UIViewController {
         var coolView = UIView(frame: CGRect(x: 50.0, y: 40.0, width: 70.0, height: 200.0))
         coolView.backgroundColor = UIColor.purpleColor()
         parallaxScrollView.addSubview(coolView, type: .NoEffect, page: 3)
+        
+        var dasView = UIView(frame: CGRect(x: 50.0, y: 40.0, width: 70.0, height: 300.0))
+        dasView.backgroundColor = UIColor.orangeColor()
+        parallaxScrollView.addSubview(dasView, type: .NoEffect, page: 4)
     }
 }
 

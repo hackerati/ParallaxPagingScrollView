@@ -8,12 +8,16 @@
 
 import UIKit
 
-struct ParallaxScrollViewSubviewModel
+typealias animationClosure = () -> Void
+
+class ParallaxScrollViewSubviewModel
 {
+
     private(set) weak var view: UIView!
     private(set) var type: ParallaxViewType
     private(set) var pageNumber: Int?
     private(set) var pageRange: (Int, Int)?
+    var animation: animationClosure?
     
     init(view: UIView, type: ParallaxViewType, pageNumber: Int)
     {

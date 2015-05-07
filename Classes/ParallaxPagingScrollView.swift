@@ -26,10 +26,11 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     private let numberOfPages: Int
     private var pageOrigins = Array<CGPoint>()
-    private var currentPage: Int = 0
-    private var currentOrigin = CGPoint(x: 0.0, y: 0.0)
-    private var childrenViews = Dictionary<ParallaxViewType, Array<ParallaxScrollViewSubviewModel>>()
-    private var scrollDirection = ScrollDirection.Left
+    private var animator: ParallaxAnimator!
+    private(set) var currentPage: Int = 0
+    private(set) var nextPage: Int = 1
+    private(set) var currentOrigin = CGPoint(x: 0.0, y: 0.0)
+    private(set) var scrollDirection = ScrollDirection.Left
     
     private var pagingIndicator: UIPageControl!
     var pagingControlsEnabled: Bool {
@@ -46,6 +47,13 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         }
     }
     
+    convenience init()
+    {
+        self.init(frame: UIScreen.mainScreen().bounds, numberOfPages: 1)
+        self.pagingEnabled = false
+        self.pagingControlsEnabled = false
+    }
+    
     init(frame: CGRect, numberOfPages: Int) {
         self.numberOfPages = numberOfPages
         pagingControlsEnabled = false
@@ -57,6 +65,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.showsVerticalScrollIndicator = false
         
         self.setupPageControls()
+        animator = ParallaxAnimator(animatorView: self)
         
         for page in 0..<numberOfPages {
             let pageOriginX = frame.size.width * CGFloat(page)
@@ -64,7 +73,8 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         }
         
     }
-
+    
+    
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -82,79 +92,14 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.addSubview(pagingIndicator)
     }
     
-    private func trackView(subviewModel: ParallaxScrollViewSubviewModel, type: ParallaxViewType)
+    private func animateAlphaViews()
     {
-        if var viewArray = childrenViews[type] {
-            viewArray.append(subviewModel)
-            childrenViews[type] = viewArray
-        }
-        else {
-            var newArray = [subviewModel]
-            childrenViews[type] = newArray
-        }
-    }
-    
-    private func animateAlphaViews(contentOffset: CGPoint)
-    {
-        if let alphaViews = childrenViews[.AlphaEffect] {
-            
-            for viewModel in alphaViews {
-                
-                if self.canApplyEffectToView(viewModel) {
-                    
-                    let pageWidth = self.frame.size.width
-                    if let pageNumber = viewModel.pageNumber {
-                        let newAlpha = ((pageWidth * CGFloat(pageNumber + 1)) - contentOffset.x) / pageWidth
-                        viewModel.view.alpha = newAlpha
-                    }
-                }
-            }
-        }
+        self.animator.animateViewsOfType(.AlphaEffect)
     }
     
     private func fixSubviews()
     {
-        if let fixedSubviews = childrenViews[.FixedEffect] {
-            
-            for viewModel in fixedSubviews {
-                
-                if self.canApplyEffectToView(viewModel) {
-                    var fixedFrame = viewModel.view.frame
-                    fixedFrame.origin.x = contentOffset.x
-                    viewModel.view.frame = fixedFrame
-                }
-            }
-        }
-    }
-    
-    private func canApplyEffectToView(viewModel: ParallaxScrollViewSubviewModel) -> Bool
-    {
-        if let pageNumber = viewModel.pageNumber {
-            
-            if pageNumber == currentPage {
-                if scrollDirection == .Left { // if going backwards
-                    return false
-                }
-                else {
-                    return true
-                }
-            }
-            else if scrollDirection == .Left && pageNumber == currentPage - 1 {
-                return true
-            }
-        }
-        else {
-            
-            // Handle special case for effects with page ranges
-            if let (lowerBound, upperBound) = viewModel.pageRange {
-                let approachingPage = self.approachingPage();
-                if approachingPage >= lowerBound - 1 && approachingPage < upperBound - 1 {
-                    return true
-                }
-            }
-        }
-        
-        return false
+        self.animator.animateViewsOfType(.FixedEffect)
     }
     
     private func newViewRect(originalRect: CGRect, pageNumber: Int) -> CGRect
@@ -164,7 +109,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         return CGRect(origin: CGPoint(x: newOriginX, y: originalRect.origin.y), size: originalRect.size)
     }
     
-    private func approachingPage() -> Int
+    private func calculateApproachingPage() -> Int
     {
         var approachingPage = 0;
         if scrollDirection == .Left {
@@ -173,6 +118,8 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         else {
             approachingPage = currentPage
         }
+        
+        nextPage = approachingPage
         return approachingPage
     }
     
@@ -192,7 +139,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.addSubview(view, page: page)
         
         let subviewModel = ParallaxScrollViewSubviewModel(view: view, type: type, pageNumber: page - 1)
-        self.trackView(subviewModel, type: type)
+        animator.trackView(subviewModel, type: type)
     }
     
     func addFixedSubview(view: UIView, pageSpan:(Int, Int))
@@ -204,7 +151,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.addSubview(view, page: lowerBound)
         
         let subviewModel = ParallaxScrollViewSubviewModel(view: view, type: .FixedEffect, pageRange: pageSpan)
-        self.trackView(subviewModel, type: .FixedEffect)
+        animator.trackView(subviewModel, type: .FixedEffect)
     }
     
     // MARK: UIScrollView Delegate
@@ -224,7 +171,8 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
             scrollDirection = .Left
         }
         
-        self.animateAlphaViews(scrollView.contentOffset)
+        self.calculateApproachingPage()
+        self.animateAlphaViews()
         self.fixSubviews()
     }
     

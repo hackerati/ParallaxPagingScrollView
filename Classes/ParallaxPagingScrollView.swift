@@ -57,20 +57,20 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         self.numberOfPages = numberOfPages
         pagingControlsEnabled = false
         
+        for page in 0..<numberOfPages {
+            let pageOriginX = frame.size.width * CGFloat(page)
+            pageOrigins.append(CGPoint(x: pageOriginX, y: frame.origin.y))
+        }
+        
         super.init(frame: frame)
         self.delegate = self
         self.contentSize = CGSize(width: frame.size.width * CGFloat(numberOfPages), height: frame.size.height)
         self.showsHorizontalScrollIndicator = false
         self.showsVerticalScrollIndicator = false
         
-        self.setupPageControls()
         animator = ParallaxAnimator(animatorView: self)
         
-        for page in 0..<numberOfPages {
-            let pageOriginX = frame.size.width * CGFloat(page)
-            pageOrigins.append(CGPoint(x: pageOriginX, y: frame.origin.y))
-        }
-        
+        self.setupPageControls()
     }
     
     required init(coder aDecoder: NSCoder) {
@@ -87,7 +87,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         pagingIndicator.currentPage = currentPage
         pagingIndicator.hidesForSinglePage = true
         pagingIndicator.hidden = !self.pagingEnabled
-        self.addSubview(pagingIndicator)
+        self.addFixedSubview(pagingIndicator, pageSpan: (1, numberOfPages))
     }
     
     private func animateAlphaViews()
@@ -124,7 +124,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private func addSubview(view: UIView, page: Int)
     {
         assert(page > 0, "Page number can not be 0 or negative")
-        assert(page <= pageOrigins.count, "Page number exceeds the amount of pages in the scroll view")
+        assert(page <= numberOfPages, "Page number exceeds the amount of pages in the scroll view")
         
         view.frame = self.newViewRect(view.frame, pageNumber: page)
         self.addSubview(view)
@@ -156,10 +156,11 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     func scrollViewDidScroll(scrollView: UIScrollView)
     {
-        if pagingEnabled {
-            var fixedFrame = pagingIndicator.frame
-            fixedFrame.origin.x = scrollView.contentOffset.x
-            pagingIndicator.frame = fixedFrame
+        if contentOffset.x >= contentSize.width - frame.size.width {
+            self.setContentOffset(CGPoint(x: contentSize.width - frame.size.width, y: contentOffset.y), animated: false)
+        }
+        else if contentOffset.x <= 0.0 {
+            self.setContentOffset(CGPoint(x: 0.0, y: contentOffset.y), animated: false)
         }
         
         if currentOrigin.x < scrollView.contentOffset.x {

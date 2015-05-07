@@ -25,14 +25,13 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private let pagingControlHeight: CGFloat = 25.0
     
     private let numberOfPages: Int
-    private var pageOrigins = Array<CGPoint>()
-    private var animator: ParallaxAnimator!
+    private(set) var pageOrigins = Array<CGPoint>()
+    private(set) var animator: ParallaxAnimator!
     private(set) var currentPage: Int = 0
     private(set) var nextPage: Int = 1
     private(set) var currentOrigin = CGPoint(x: 0.0, y: 0.0)
     private(set) var scrollDirection = ScrollDirection.Left
-    
-    private var pagingIndicator: UIPageControl!
+    private(set) var pagingIndicator: UIPageControl!
     var pagingControlsEnabled: Bool {
         didSet {
             if self.pagingEnabled {
@@ -73,7 +72,6 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         }
         
     }
-    
     
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")

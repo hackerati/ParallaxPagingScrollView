@@ -99,13 +99,12 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         if let alphaViews = childrenViews[.AlphaEffect] {
             
             for viewModel in alphaViews {
-            
+                
                 if self.canApplyEffectToView(viewModel) {
-                    let pageWidth = self.frame.size.width
                     
+                    let pageWidth = self.frame.size.width
                     if let pageNumber = viewModel.pageNumber {
                         let newAlpha = ((pageWidth * CGFloat(pageNumber + 1)) - contentOffset.x) / pageWidth
-
                         viewModel.view.alpha = newAlpha
                     }
                 }
@@ -116,7 +115,9 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private func fixSubviews()
     {
         if let fixedSubviews = childrenViews[.FixedEffect] {
+            
             for viewModel in fixedSubviews {
+                
                 if self.canApplyEffectToView(viewModel) {
                     var fixedFrame = viewModel.view.frame
                     fixedFrame.origin.x = contentOffset.x
@@ -141,33 +142,19 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
             else if scrollDirection == .Left && pageNumber == currentPage - 1 {
                 return true
             }
-            else {
-                return false
-            }
         }
         else {
             
+            // Handle special case for effects with page ranges
             if let (lowerBound, upperBound) = viewModel.pageRange {
-                var approachingPage = 0;
-                if scrollDirection == .Left {
-                    approachingPage = currentPage - 1
-                }
-                else {
-                    approachingPage = currentPage
-                }
-                
-                println(approachingPage)
+                let approachingPage = self.approachingPage();
                 if approachingPage >= lowerBound - 1 && approachingPage < upperBound - 1 {
                     return true
                 }
-                else {
-                    return false
-                }
-            }
-            else {
-                return false
             }
         }
+        
+        return false
     }
     
     private func newViewRect(originalRect: CGRect, pageNumber: Int) -> CGRect
@@ -177,15 +164,32 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         return CGRect(origin: CGPoint(x: newOriginX, y: originalRect.origin.y), size: originalRect.size)
     }
     
-    // MARK: Public
+    private func approachingPage() -> Int
+    {
+        var approachingPage = 0;
+        if scrollDirection == .Left {
+            approachingPage = currentPage - 1
+        }
+        else {
+            approachingPage = currentPage
+        }
+        return approachingPage
+    }
     
-    func addSubview(view: UIView, type: ParallaxViewType, page: Int)
+    private func addSubview(view: UIView, page: Int)
     {
         assert(page > 0, "Page number can not be 0 or negative")
         assert(page <= pageOrigins.count, "Page number exceeds the amount of pages in the scroll view")
         
         view.frame = self.newViewRect(view.frame, pageNumber: page)
         self.addSubview(view)
+    }
+    
+    // MARK: Public
+    
+    func addSubview(view: UIView, type: ParallaxViewType, page: Int)
+    {
+        self.addSubview(view, page: page)
         
         let subviewModel = ParallaxScrollViewSubviewModel(view: view, type: type, pageNumber: page - 1)
         self.trackView(subviewModel, type: type)
@@ -197,8 +201,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         assert(lowerBound < upperBound, "Page range must go in ascending order")
         assert(lowerBound > 0 && upperBound <= numberOfPages, "Page range out of bounds of number of pages")
         
-        view.frame = self.newViewRect(view.frame, pageNumber: lowerBound)
-        self.addSubview(view)
+        self.addSubview(view, page: lowerBound)
         
         let subviewModel = ParallaxScrollViewSubviewModel(view: view, type: .FixedEffect, pageRange: pageSpan)
         self.trackView(subviewModel, type: .FixedEffect)

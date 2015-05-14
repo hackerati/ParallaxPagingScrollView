@@ -109,7 +109,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     private func calculateApproachingPage() -> Int
     {
-        var approachingPage = 0;
+        let approachingPage : Int
         if scrollDirection == .Left {
             approachingPage = currentPage - 1
         }

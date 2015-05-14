@@ -40,24 +40,24 @@ class ParallaxAnimator : NSObject
     {
         let closure: animationClosure?
         switch type {
-        case .AlphaEffect:
-            closure = { () -> Void in
-                let pageWidth = self.animatorView.frame.size.width
-                if let pageNumber = subviewModel.pageNumber {
-                    let newAlpha = ((pageWidth * CGFloat(pageNumber + 1)) - self.animatorView.contentOffset.x) / pageWidth
-                    subviewModel.view.alpha = newAlpha
+            case .AlphaEffect:
+                closure = {
+                    let pageWidth = self.animatorView.frame.size.width
+                    if let pageNumber = subviewModel.pageNumber {
+                        let newAlpha = ((pageWidth * CGFloat(pageNumber + 1)) - self.animatorView.contentOffset.x) / pageWidth
+                        subviewModel.view.alpha = newAlpha
+                    }
+                    return
                 }
-                return
-            }
-        case .FixedEffect:
-            closure = { () -> Void in
-                var fixedFrame = subviewModel.view.frame
-                fixedFrame.origin.x = self.animatorView.contentOffset.x
-                subviewModel.view.frame = fixedFrame
-            }
-        default:
-            closure = nil
-            break
+            case .FixedEffect:
+                closure = {
+                    var fixedFrame = subviewModel.view.frame
+                    fixedFrame.origin.x = self.animatorView.contentOffset.x
+                    subviewModel.view.frame = fixedFrame
+                }
+            default:
+                closure = nil
+                break
         }
         
         subviewModel.animation = closure

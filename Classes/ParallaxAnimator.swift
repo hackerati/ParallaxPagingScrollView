@@ -12,7 +12,7 @@ import UIKit
 class ParallaxAnimator : NSObject
 {
     private weak var animatorView: ParallaxPagingScrollView!
-    private var childrenViews = Dictionary<ParallaxViewType, Array<ParallaxScrollViewSubviewModel>>()
+    private var childrenViews = [ParallaxViewType : [ParallaxScrollViewSubviewModel]]()
     
     init(animatorView: ParallaxPagingScrollView)
     {

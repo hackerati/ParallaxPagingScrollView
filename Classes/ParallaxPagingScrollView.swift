@@ -25,7 +25,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private let pagingControlHeight: CGFloat = 25.0
     
     private let numberOfPages: Int
-    private(set) var pageOrigins = Array<CGPoint>()
+    private(set) var pageOrigins = [CGPoint]()
     private(set) var animator: ParallaxAnimator!
     private(set) var currentPage: Int = 0
     private(set) var nextPage: Int = 1

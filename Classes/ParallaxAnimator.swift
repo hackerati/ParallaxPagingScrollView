@@ -53,14 +53,7 @@ class ParallaxAnimator : NSObject
         
         subviewModel.animation = closure
 
-        if var viewArray = childrenViews[type] {
-            viewArray.append(subviewModel)
-            childrenViews[type] = viewArray
-        }
-        else {
-            var newArray = [subviewModel]
-            childrenViews[type] = newArray
-        }
+        childrenViews[type] = (childrenViews[type] ?? []) + [subviewModel]
     }
     
     private func canApplyEffectToView(viewModel: ParallaxScrollViewSubviewModel) -> Bool

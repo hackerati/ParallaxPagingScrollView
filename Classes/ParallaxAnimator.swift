@@ -22,18 +22,9 @@ class ParallaxAnimator : NSObject
     
     func animateViewsOfType(type: ParallaxViewType)
     {
-        if let viewModels = childrenViews[type] {
-            
-            for viewModel in viewModels {
-                
-                if canApplyEffectToView(viewModel) {
-                    
-                    if let animation = viewModel.animation {
-                        animation()
-                    }
-                }
-            }
-        }
+        
+        childrenViews[type]?.filter({self.canApplyEffectToView($0)}).map({$0.animation?()})
+       
     }
     
     func trackView(subviewModel: ParallaxScrollViewSubviewModel, type: ParallaxViewType)

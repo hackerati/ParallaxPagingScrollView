@@ -26,7 +26,7 @@ class ParallaxAnimator : NSObject
             
             for viewModel in viewModels {
                 
-                if self.canApplyEffectToView(viewModel) {
+                if canApplyEffectToView(viewModel) {
                     
                     if let animation = viewModel.animation {
                         animation()

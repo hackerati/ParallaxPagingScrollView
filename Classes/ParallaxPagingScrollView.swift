@@ -25,7 +25,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private let pagingControlHeight: CGFloat = 25.0
     
     private let numberOfPages: Int
-    private(set) var pageOrigins = Array<CGPoint>()
+    private(set) var pageOrigins = [CGPoint]()
     private(set) var animator: ParallaxAnimator!
     private(set) var currentPage: Int = 0
     private(set) var nextPage: Int = 1
@@ -34,15 +34,15 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     private(set) var pagingIndicator: UIPageControl!
     var pagingControlsEnabled: Bool {
         didSet {
-            if self.pagingEnabled {
-                self.pagingIndicator.hidden = !pagingEnabled
+            if pagingEnabled {
+                pagingIndicator.hidden = !pagingEnabled
             }
         }
     }
     
     var pagingControlsTintColor: UIColor! {
         didSet {
-            self.pagingIndicator.tintColor = pagingControlsTintColor
+            pagingIndicator.tintColor = pagingControlsTintColor
         }
     }
     
@@ -86,18 +86,18 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         pagingIndicator.numberOfPages = numberOfPages
         pagingIndicator.currentPage = currentPage
         pagingIndicator.hidesForSinglePage = true
-        pagingIndicator.hidden = !self.pagingEnabled
-        self.addFixedSubview(pagingIndicator, pageSpan: (1, numberOfPages))
+        pagingIndicator.hidden = !pagingEnabled
+        addFixedSubview(pagingIndicator, pageSpan: (1, numberOfPages))
     }
     
     private func animateAlphaViews()
     {
-        self.animator.animateViewsOfType(.AlphaEffect)
+        animator.animateViewsOfType(.AlphaEffect)
     }
     
     private func fixSubviews()
     {
-        self.animator.animateViewsOfType(.FixedEffect)
+        animator.animateViewsOfType(.FixedEffect)
     }
     
     private func newViewRect(originalRect: CGRect, pageNumber: Int) -> CGRect
@@ -109,7 +109,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     private func calculateApproachingPage() -> Int
     {
-        var approachingPage = 0;
+        let approachingPage : Int
         if scrollDirection == .Left {
             approachingPage = currentPage - 1
         }
@@ -126,7 +126,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         assert(page > 0, "Page number can not be 0 or negative")
         assert(page <= numberOfPages, "Page number exceeds the amount of pages in the scroll view")
         
-        view.frame = self.newViewRect(view.frame, pageNumber: page)
+        view.frame = newViewRect(view.frame, pageNumber: page)
         self.addSubview(view)
     }
     
@@ -134,7 +134,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
     
     func addSubview(view: UIView, type: ParallaxViewType, page: Int)
     {
-        self.addSubview(view, page: page)
+        addSubview(view, page: page)
         
         let subviewModel = ParallaxScrollViewSubviewModel(view: view, type: type, pageNumber: page - 1)
         animator.trackView(subviewModel, type: type)
@@ -146,7 +146,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
         assert(lowerBound < upperBound, "Page range must go in ascending order")
         assert(lowerBound > 0 && upperBound <= numberOfPages, "Page range out of bounds of number of pages")
         
-        self.addSubview(view, page: lowerBound)
+        addSubview(view, page: lowerBound)
         
         let subviewModel = ParallaxScrollViewSubviewModel(view: view, type: .FixedEffect, pageRange: pageSpan)
         animator.trackView(subviewModel, type: .FixedEffect)
@@ -160,7 +160,7 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
             self.setContentOffset(CGPoint(x: contentSize.width - frame.size.width, y: contentOffset.y), animated: false)
         }
         else if contentOffset.x <= 0.0 {
-            self.setContentOffset(CGPoint(x: 0.0, y: contentOffset.y), animated: false)
+            setContentOffset(CGPoint(x: 0.0, y: contentOffset.y), animated: false)
         }
         
         if currentOrigin.x < scrollView.contentOffset.x {
@@ -170,9 +170,9 @@ class ParallaxPagingScrollView : UIScrollView, UIScrollViewDelegate {
             scrollDirection = .Left
         }
         
-        self.calculateApproachingPage()
-        self.animateAlphaViews()
-        self.fixSubviews()
+        calculateApproachingPage()
+        animateAlphaViews()
+        fixSubviews()
     }
     
     func scrollViewDidEndDecelerating(scrollView: UIScrollView)

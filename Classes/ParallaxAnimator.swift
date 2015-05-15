@@ -12,7 +12,7 @@ import UIKit
 class ParallaxAnimator : NSObject
 {
     private weak var animatorView: ParallaxPagingScrollView!
-    private var childrenViews = Dictionary<ParallaxViewType, Array<ParallaxScrollViewSubviewModel>>()
+    private var childrenViews = [ParallaxViewType : [ParallaxScrollViewSubviewModel]]()
     
     init(animatorView: ParallaxPagingScrollView)
     {
@@ -22,54 +22,38 @@ class ParallaxAnimator : NSObject
     
     func animateViewsOfType(type: ParallaxViewType)
     {
-        if let viewModels = childrenViews[type] {
-            
-            for viewModel in viewModels {
-                
-                if self.canApplyEffectToView(viewModel) {
-                    
-                    if let animation = viewModel.animation {
-                        animation()
-                    }
-                }
-            }
-        }
+        
+        childrenViews[type]?.filter({self.canApplyEffectToView($0)}).map({$0.animation?()})
+       
     }
     
     func trackView(subviewModel: ParallaxScrollViewSubviewModel, type: ParallaxViewType)
     {
         let closure: animationClosure?
         switch type {
-        case .AlphaEffect:
-            closure = { () -> Void in
-                let pageWidth = self.animatorView.frame.size.width
-                if let pageNumber = subviewModel.pageNumber {
-                    let newAlpha = ((pageWidth * CGFloat(pageNumber + 1)) - self.animatorView.contentOffset.x) / pageWidth
-                    subviewModel.view.alpha = newAlpha
+            case .AlphaEffect:
+                closure = {
+                    let pageWidth = self.animatorView.frame.size.width
+                    if let pageNumber = subviewModel.pageNumber {
+                        let newAlpha = ((pageWidth * CGFloat(pageNumber + 1)) - self.animatorView.contentOffset.x) / pageWidth
+                        subviewModel.view.alpha = newAlpha
+                    }
+                    return
                 }
-                return
-            }
-        case .FixedEffect:
-            closure = { () -> Void in
-                var fixedFrame = subviewModel.view.frame
-                fixedFrame.origin.x = self.animatorView.contentOffset.x
-                subviewModel.view.frame = fixedFrame
-            }
-        default:
-            closure = nil
-            break
+            case .FixedEffect:
+                closure = {
+                    var fixedFrame = subviewModel.view.frame
+                    fixedFrame.origin.x = self.animatorView.contentOffset.x
+                    subviewModel.view.frame = fixedFrame
+                }
+            default:
+                closure = nil
+                break
         }
         
         subviewModel.animation = closure
 
-        if var viewArray = childrenViews[type] {
-            viewArray.append(subviewModel)
-            childrenViews[type] = viewArray
-        }
-        else {
-            var newArray = [subviewModel]
-            childrenViews[type] = newArray
-        }
+        childrenViews[type] = (childrenViews[type] ?? []) + [subviewModel]
     }
     
     private func canApplyEffectToView(viewModel: ParallaxScrollViewSubviewModel) -> Bool
